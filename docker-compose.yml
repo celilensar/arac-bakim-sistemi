@@ -1,0 +1,18 @@
+# LocalStack: AWS servislerini (SQS, DynamoDB) bilgisayarında simüle eder.
+# Tek bir Docker konteyneri içinde, gerçek AWS hesabı/ücreti olmadan çalışır.
+services:
+  localstack:
+    image: localstack/localstack:3            # LocalStack 3.x community sürümü (ücretsiz)
+    container_name: arac-localstack
+    ports:
+      - "4566:4566"                           # "edge port": TÜM AWS servisleri bu tek porttan konuşur
+    environment:
+      - SERVICES=sqs,dynamodb                  # sadece ihtiyacımız olan servisleri başlat (hızlı açılış)
+      - DEBUG=1                                 # log'larda ne olup bittiğini detaylı gör
+      - AWS_DEFAULT_REGION=eu-central-1         # Frankfurt bölgesi (Türkiye'ye en yakın)
+    volumes:
+      # init/ready.d: LocalStack "hazır" olduğunda içindeki .sh dosyalarını otomatik çalıştırır.
+      # Kuyruğu ve tabloyu burada oluşturacağız (Adım 2).
+      - "./infra/init:/etc/localstack/init/ready.d"
+      # LocalStack'in bazı servisleri arka planda yardımcı konteynerler başlatır; bunun için Docker'a erişmesi gerekir.
+      - "/var/run/docker.sock:/var/run/docker.sock"
