@@ -1,0 +1,20 @@
+# Maven derleme ciktilari
+target/
+
+# Maven Wrapper indirilmis jar (her ortamda yeniden indirilir)
+.mvn/wrapper/maven-wrapper.jar
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.settings/
+.project
+.classpath
+
+# Isletim sistemi
+.DS_Store
+Thumbs.db
+
+# Loglar
+*.log
