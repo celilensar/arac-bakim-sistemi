@@ -1,0 +1,114 @@
+<svg viewBox="0 0 1000 628" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, system-ui, -apple-system, Roboto, sans-serif">
+  <rect x="0" y="0" width="1000" height="628" fill="#ffffff"/>
+  <style>
+    .title{ font-weight:700; font-size:12.5px; fill:#1f2937; }
+    .sub{ font-size:9.5px; fill:#64748b; }
+    .lbl{ font-size:9.5px; fill:#64748b; font-weight:600; }
+    .h{ font-weight:700; font-size:16px; fill:#111827; }
+    .hs{ font-size:11px; fill:#64748b; }
+    .edge{ stroke:#6b7280; stroke-width:2; fill:none; }
+    .dash{ stroke-dasharray:5 4; }
+  </style>
+  <defs>
+    <marker id="arw" markerWidth="9" markerHeight="9" refX="6.5" refY="3" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M0,0 L7,3 L0,6 Z" fill="#6b7280"/>
+    </marker>
+  </defs>
+
+  <text x="16" y="24" class="h">Araç Bakım Uyarı Sistemi — Mimari (Faz 1 + Faz 2)</text>
+  <text x="16" y="42" class="hs">Tümü LocalStack üzerinde lokal AWS · Spring Boot mikroservisler</text>
+
+  <!-- ARROWS -->
+  <line x1="148" y1="309" x2="178" y2="309" class="edge" marker-end="url(#arw)"/>
+  <line x1="312" y1="309" x2="342" y2="309" class="edge" marker-end="url(#arw)"/>
+  <line x1="476" y1="309" x2="506" y2="309" class="edge" marker-end="url(#arw)"/>
+  <line x1="640" y1="309" x2="670" y2="309" class="edge" marker-end="url(#arw)"/>
+  <line x1="804" y1="309" x2="834" y2="309" class="edge" marker-end="url(#arw)"/>
+  <text x="656" y="300" text-anchor="middle" class="lbl">fan-out</text>
+
+  <line x1="410" y1="280" x2="410" y2="124" class="edge" marker-end="url(#arw)"/>
+  <text x="416" y="205" class="lbl">yaz</text>
+  <line x1="902" y1="280" x2="902" y2="124" class="edge" marker-end="url(#arw)"/>
+  <text x="908" y="205" class="lbl">yaz</text>
+  <line x1="902" y1="338" x2="902" y2="408" class="edge" marker-end="url(#arw)"/>
+  <text x="908" y="378" class="lbl">uyarı</text>
+
+  <line x1="738" y1="338" x2="738" y2="450" class="edge dash" marker-end="url(#arw)"/>
+  <text x="744" y="400" class="lbl">3× hata</text>
+  <line x1="902" y1="468" x2="902" y2="518" class="edge dash" marker-end="url(#arw)"/>
+  <text x="908" y="498" class="lbl">3× hata</text>
+
+  <line x1="148" y1="93" x2="178" y2="93" class="edge" marker-end="url(#arw)"/>
+  <text x="163" y="86" text-anchor="middle" class="lbl">REST</text>
+  <line x1="312" y1="93" x2="342" y2="93" class="edge" marker-end="url(#arw)"/>
+  <text x="327" y="86" text-anchor="middle" class="lbl">oku</text>
+
+  <!-- TOP LANE -->
+  <rect x="16" y="64" width="132" height="58" rx="9" fill="#eef1f5" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="82" y="90" text-anchor="middle" class="title">Tarayıcı</text>
+  <text x="82" y="106" text-anchor="middle" class="sub">kullanıcı</text>
+
+  <rect x="180" y="64" width="132" height="58" rx="9" fill="#e7f8ee" stroke="#22c55e" stroke-width="1.5"/>
+  <text x="246" y="90" text-anchor="middle" class="title">Query API</text>
+  <text x="246" y="106" text-anchor="middle" class="sub">REST · Spring Boot</text>
+
+  <rect x="344" y="64" width="132" height="58" rx="9" fill="#f0ebfd" stroke="#8b5cf6" stroke-width="1.5"/>
+  <text x="410" y="90" text-anchor="middle" class="title">DynamoDB</text>
+  <text x="410" y="106" text-anchor="middle" class="sub">telemetry</text>
+
+  <rect x="836" y="64" width="132" height="58" rx="9" fill="#f0ebfd" stroke="#8b5cf6" stroke-width="1.5"/>
+  <text x="902" y="90" text-anchor="middle" class="title">DynamoDB</text>
+  <text x="902" y="106" text-anchor="middle" class="sub">alerts</text>
+
+  <!-- MIDDLE LANE -->
+  <rect x="16" y="280" width="132" height="58" rx="9" fill="#e7f8ee" stroke="#22c55e" stroke-width="1.5"/>
+  <text x="82" y="306" text-anchor="middle" class="title">Simülatör</text>
+  <text x="82" y="322" text-anchor="middle" class="sub">sensör üretici · SB</text>
+
+  <rect x="180" y="280" width="132" height="58" rx="9" fill="#e6effd" stroke="#3b82f6" stroke-width="1.5"/>
+  <text x="246" y="306" text-anchor="middle" class="title">SQS</text>
+  <text x="246" y="322" text-anchor="middle" class="sub">telemetry-queue</text>
+
+  <rect x="344" y="280" width="132" height="58" rx="9" fill="#e7f8ee" stroke="#22c55e" stroke-width="1.5"/>
+  <text x="410" y="306" text-anchor="middle" class="title">Ingestion</text>
+  <text x="410" y="322" text-anchor="middle" class="sub">alma servisi · SB</text>
+
+  <rect x="508" y="280" width="132" height="58" rx="9" fill="#e0f7fb" stroke="#06b6d4" stroke-width="1.5"/>
+  <text x="574" y="306" text-anchor="middle" class="title">SNS</text>
+  <text x="574" y="322" text-anchor="middle" class="sub">telemetry-events</text>
+
+  <rect x="672" y="280" width="132" height="58" rx="9" fill="#e6effd" stroke="#3b82f6" stroke-width="1.5"/>
+  <text x="738" y="306" text-anchor="middle" class="title">SQS</text>
+  <text x="738" y="322" text-anchor="middle" class="sub">rules-queue</text>
+
+  <rect x="836" y="280" width="132" height="58" rx="9" fill="#e7f8ee" stroke="#22c55e" stroke-width="1.5"/>
+  <text x="902" y="306" text-anchor="middle" class="title">Rules-Engine</text>
+  <text x="902" y="322" text-anchor="middle" class="sub">kural motoru · SB</text>
+
+  <!-- BOTTOM -->
+  <rect x="836" y="410" width="132" height="58" rx="9" fill="#e6effd" stroke="#3b82f6" stroke-width="1.5"/>
+  <text x="902" y="436" text-anchor="middle" class="title">SQS</text>
+  <text x="902" y="452" text-anchor="middle" class="sub">alerts-queue</text>
+
+  <rect x="672" y="450" width="132" height="44" rx="9" fill="#fdeaea" stroke="#ef4444" stroke-width="1.5"/>
+  <text x="738" y="470" text-anchor="middle" class="title">DLQ</text>
+  <text x="738" y="484" text-anchor="middle" class="sub">rules-dlq</text>
+
+  <rect x="836" y="520" width="132" height="44" rx="9" fill="#fdeaea" stroke="#ef4444" stroke-width="1.5"/>
+  <text x="902" y="540" text-anchor="middle" class="title">DLQ</text>
+  <text x="902" y="554" text-anchor="middle" class="sub">alerts-dlq</text>
+
+  <!-- LEGEND -->
+  <g transform="translate(16,596)">
+    <rect x="0" y="0" width="13" height="13" rx="3" fill="#e7f8ee" stroke="#22c55e" stroke-width="1.5"/>
+    <text x="19" y="10" class="sub">Spring Boot servis</text>
+    <rect x="150" y="0" width="13" height="13" rx="3" fill="#e6effd" stroke="#3b82f6" stroke-width="1.5"/>
+    <text x="169" y="10" class="sub">SQS kuyruk</text>
+    <rect x="268" y="0" width="13" height="13" rx="3" fill="#e0f7fb" stroke="#06b6d4" stroke-width="1.5"/>
+    <text x="287" y="10" class="sub">SNS topic</text>
+    <rect x="372" y="0" width="13" height="13" rx="3" fill="#f0ebfd" stroke="#8b5cf6" stroke-width="1.5"/>
+    <text x="391" y="10" class="sub">DynamoDB</text>
+    <rect x="478" y="0" width="13" height="13" rx="3" fill="#fdeaea" stroke="#ef4444" stroke-width="1.5"/>
+    <text x="497" y="10" class="sub">Dead Letter Queue</text>
+  </g>
+</svg>
