@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
+import software.amazon.awssdk.services.sns.SnsClient;
 import software.amazon.awssdk.services.sqs.SqsClient;
 import software.amazon.awssdk.services.sqs.model.Message;
 import software.amazon.awssdk.services.sqs.model.ReceiveMessageResponse;
@@ -28,17 +29,24 @@ public class TelemetryConsumer {
     private static final Logger log = LoggerFactory.getLogger(TelemetryConsumer.class);
 
     private final SqsClient sqsClient;
+    private final SnsClient snsClient;
     private final DynamoDbTable<TelemetryItem> telemetryTable;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Value("${app.sqs.queue-name}")
     private String queueName;
 
-    private String queueUrl;
+    @Value("${app.sns.topic-name}")
+    private String topicName;
 
-    // Spring, iki bean'i de constructor uzerinden enjekte eder.
-    public TelemetryConsumer(SqsClient sqsClient, DynamoDbTable<TelemetryItem> telemetryTable) {
+    private String queueUrl;
+    private String topicArn;
+
+    // Spring, uc bean'i de constructor uzerinden enjekte eder.
+    public TelemetryConsumer(SqsClient sqsClient, SnsClient snsClient,
+                             DynamoDbTable<TelemetryItem> telemetryTable) {
         this.sqsClient = sqsClient;
+        this.snsClient = snsClient;
         this.telemetryTable = telemetryTable;
     }
 
@@ -63,12 +71,18 @@ public class TelemetryConsumer {
             // 2) DynamoDB'ye yaz (ayni vehicleId + timestamp varsa uzerine yazar = idempotent)
             telemetryTable.putItem(item);
 
-            // 3) Basariyla islendi -> mesaji kuyruktan sil
+            // 3) Ayni telemetriyi SNS topic'ine yayinla (fan-out).
+            //    Topic'e abone olan rules-queue'ya mesaj otomatik kopyalanir.
+            snsClient.publish(p -> p
+                    .topicArn(resolveTopicArn())
+                    .message(message.body()));
+
+            // 4) Basariyla islendi -> mesaji kuyruktan sil
             sqsClient.deleteMessage(d -> d
                     .queueUrl(resolveQueueUrl())
                     .receiptHandle(message.receiptHandle()));
 
-            log.info("Islendi -> {} @ {} (motor={}C)",
+            log.info("Islendi + yayinlandi -> {} @ {} (motor={}C)",
                     item.getVehicleId(), item.getTimestamp(), item.getEngineTemp());
         } catch (Exception e) {
             // Silmiyoruz: mesaj kuyrukta kalir, visibility timeout sonrasi yeniden denenir.
@@ -82,5 +96,15 @@ public class TelemetryConsumer {
             log.info("Kuyruk URL cozuldu: {}", queueUrl);
         }
         return queueUrl;
+    }
+
+    // Topic ARN'ini adindan cozer. createTopic idempotent'tir: topic zaten varsa
+    // yenisini yaratmaz, mevcut olanin ARN'ini dondurur. Boylece ARN'i koda gommeyiz.
+    private String resolveTopicArn() {
+        if (topicArn == null) {
+            topicArn = snsClient.createTopic(b -> b.name(topicName)).topicArn();
+            log.info("Topic ARN cozuldu: {}", topicArn);
+        }
+        return topicArn;
     }
 }

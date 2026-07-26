@@ -56,6 +56,12 @@
 			<artifactId>sqs</artifactId>
 		</dependency>
 
+		<!-- SNS: telemetriyi topic'e yayinlamak (fan-out) icin -->
+		<dependency>
+			<groupId>software.amazon.awssdk</groupId>
+			<artifactId>sns</artifactId>
+		</dependency>
+
 		<!-- DynamoDB Enhanced: Java nesnesini dogrudan tabloya yazmak icin
 		     (dusuk seviyeli dynamodb kutuphanesini de icinde getirir) -->
 		<dependency>
