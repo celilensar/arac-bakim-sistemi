@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Aggregator (parent) POM.
+  Kendi basina bir uygulama degil; sadece alt servisleri tek projede toplar.
+  packaging=pom + <modules> => IntelliJ/Maven bu koku acinca ucunu de
+  Maven modulu olarak yukler ve bagimliliklarini indirir.
+  Alt servisler kendi <parent>'i (spring-boot-starter-parent) korur; buraya bagli degildir.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.aracbakim</groupId>
+    <artifactId>arac-bakim-sistemi</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <name>arac-bakim-sistemi</name>
+
+    <modules>
+        <module>sensor-simulator</module>
+        <module>ingestion-service</module>
+        <module>query-api</module>
+    </modules>
+</project>
