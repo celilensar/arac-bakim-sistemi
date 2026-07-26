@@ -7,7 +7,7 @@ services:
     ports:
       - "4566:4566"                           # "edge port": TÜM AWS servisleri bu tek porttan konuşur
     environment:
-      - SERVICES=sqs,dynamodb                  # sadece ihtiyacımız olan servisleri başlat (hızlı açılış)
+      - SERVICES=sqs,dynamodb,sns              # Faz 2'de SNS eklendi (fan-out için)
       - DEBUG=1                                 # log'larda ne olup bittiğini detaylı gör
       - AWS_DEFAULT_REGION=eu-central-1         # Frankfurt bölgesi (Türkiye'ye en yakın)
     volumes:
