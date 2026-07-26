@@ -21,5 +21,6 @@
         <module>sensor-simulator</module>
         <module>ingestion-service</module>
         <module>query-api</module>
+        <module>rules-engine</module>
     </modules>
 </project>
