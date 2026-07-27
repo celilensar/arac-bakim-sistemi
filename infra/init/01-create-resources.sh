@@ -75,4 +75,27 @@ awslocal dynamodb create-table \
       AttributeName=alertId,KeyType=RANGE \
   --billing-mode PAY_PER_REQUEST
 
+
+echo "### [init] ===== FAZ 3 kaynaklari (bildirim) ====="
+
+# 1) Bildirim topic'i: notification servisi buraya yayinlar
+NOTIFY_TOPIC_ARN=$(awslocal sns create-topic --name alert-notifications --query 'TopicArn' --output text)
+echo "### [init] SNS topic: $NOTIFY_TOPIC_ARN"
+
+# 2) "Gelen kutusu" kuyrugu: gercek e-posta yerine bildirimleri burada gorup dogrulayacagiz
+awslocal sqs create-queue --queue-name notifications-inbox
+INBOX_ARN=$(queue_arn notifications-inbox)
+
+# 3) notifications-inbox'i bildirim topic'ine abone et (raw delivery)
+echo "### [init] notifications-inbox -> alert-notifications aboneligi"
+awslocal sns subscribe \
+  --topic-arn "$NOTIFY_TOPIC_ARN" \
+  --protocol sqs \
+  --notification-endpoint "$INBOX_ARN" \
+  --attributes RawMessageDelivery=true
+
+# Not: Gercek AWS'te buraya bir e-posta aboneligi de eklenir:
+#   awslocal sns subscribe --topic-arn "$NOTIFY_TOPIC_ARN" --protocol email --notification-endpoint ornek@mail.com
+# LocalStack (ucretsiz) gercek e-posta gondermez; o yuzden inbox kuyrugu ile dogruluyoruz.
+
 echo "### [init] Tum kaynaklar hazir."

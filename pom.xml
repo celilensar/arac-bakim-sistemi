@@ -22,5 +22,6 @@
         <module>ingestion-service</module>
         <module>query-api</module>
         <module>rules-engine</module>
+        <module>notification-service</module>
     </modules>
 </project>
