@@ -1,7 +1,10 @@
 package com.aracbakim.notification_service;
 
+import java.time.Instant;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -40,9 +43,17 @@ public class NotificationConsumer {
     @Value("${app.notify.severities}")
     private String severitiesCsv;
 
+    @Value("${app.notify.cooldown-seconds}")
+    private long cooldownSeconds;
+
     private String alertsQueueUrl;
     private String notifyTopicArn;
     private Set<String> allowedSeverities;
+
+    // Ayni (arac + kural) icin son bildirimin gonderildigi an.
+    // Bellekte tutuluyor; tek instance icin yeterli. (Cok instance'li uretimde
+    // ortak bir depo -> DynamoDB/Redis TTL ile paylasilmali.)
+    private final Map<String, Instant> lastSentAt = new ConcurrentHashMap<>();
 
     public NotificationConsumer(SqsClient sqsClient, SnsClient snsClient) {
         this.sqsClient = sqsClient;
@@ -65,8 +76,17 @@ public class NotificationConsumer {
         try {
             Alert alert = objectMapper.readValue(message.body(), Alert.class);
 
-            // Filtre: sadece izin verilen seviyeler bildirim olur (BILGI atlanir)
-            if (severities().contains(alert.getSeverity())) {
+            // 1) Filtre: sadece izin verilen seviyeler bildirim olur (BILGI atlanir)
+            if (!severities().contains(alert.getSeverity())) {
+                log.info("Atlandi (dusuk oncelik: {}) -> {}", alert.getSeverity(), alert.getVehicleId());
+            }
+            // 2) Cooldown: ayni arac+kural icin son bildirimden bu yana yeterli sure gecti mi?
+            else if (inCooldown(alert)) {
+                log.info("Atlandi (cooldown, {}sn) -> {} / {}",
+                        cooldownSeconds, alert.getVehicleId(), alert.getRule());
+            }
+            // 3) Gonder
+            else {
                 String subject = "Bakim Uyarisi: " + alert.getVehicleId();
                 String body = format(alert);
 
@@ -75,9 +95,8 @@ public class NotificationConsumer {
                         .subject(subject)
                         .message(body));
 
+                lastSentAt.put(cooldownKey(alert), Instant.now());
                 log.info("BILDIRIM GONDERILDI -> {}", body);
-            } else {
-                log.info("Atlandi (dusuk oncelik: {}) -> {}", alert.getSeverity(), alert.getVehicleId());
             }
 
             // Islendi (gonderildi ya da bilincli atlandi) -> mesaji sil
@@ -98,6 +117,16 @@ public class NotificationConsumer {
         };
         return "%s %s - %s (%s = %s)".formatted(
                 icon, a.getVehicleId(), a.getMessage(), a.getRule(), a.getValue());
+    }
+
+    // Ayni arac + kural icin son bildirimden bu yana cooldown suresi dolmadiysa true.
+    private boolean inCooldown(Alert alert) {
+        Instant last = lastSentAt.get(cooldownKey(alert));
+        return last != null && last.plusSeconds(cooldownSeconds).isAfter(Instant.now());
+    }
+
+    private String cooldownKey(Alert alert) {
+        return alert.getVehicleId() + "#" + alert.getRule();
     }
 
     private Set<String> severities() {
