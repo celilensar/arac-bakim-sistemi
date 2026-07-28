@@ -98,4 +98,27 @@ awslocal sns subscribe \
 #   awslocal sns subscribe --topic-arn "$NOTIFY_TOPIC_ARN" --protocol email --notification-endpoint ornek@mail.com
 # LocalStack (ucretsiz) gercek e-posta gondermez; o yuzden inbox kuyrugu ile dogruluyoruz.
 
+
+echo "### [init] ===== Dinamik esikler (thresholds) ====="
+
+# Kural esikleri artik koda gomulu degil; bu tabloda VERI olarak duruyor.
+# Kural motoru bunlari periyodik okur -> deger degistirince restart gerekmez.
+awslocal dynamodb create-table \
+  --table-name thresholds \
+  --attribute-definitions AttributeName=ruleCode,AttributeType=S \
+  --key-schema AttributeName=ruleCode,KeyType=HASH \
+  --billing-mode PAY_PER_REQUEST
+
+# Yardimci: bir esik kuralini tabloya yazar.
+# arg: ruleCode metric operator(GT/LT) limitValue severity message
+put_threshold() {
+  awslocal dynamodb put-item --table-name thresholds --item \
+    "{\"ruleCode\":{\"S\":\"$1\"},\"metric\":{\"S\":\"$2\"},\"operator\":{\"S\":\"$3\"},\"limitValue\":{\"N\":\"$4\"},\"severity\":{\"S\":\"$5\"},\"message\":{\"S\":\"$6\"},\"enabled\":{\"BOOL\":true}}"
+}
+
+put_threshold ENGINE_OVERHEAT    engineTemp     GT 105 KRITIK "Motor sicakligi cok yuksek"
+put_threshold OIL_LIFE_LOW       oilLife        LT 15  UYARI  "Yag omru dusuk, bakim gerekli"
+put_threshold BATTERY_LOW        batteryVoltage LT 12  UYARI  "Aku voltaji dusuk"
+put_threshold TIRE_PRESSURE_LOW  tirePressure   LT 30  BILGI  "Lastik basinci dusuk"
+
 echo "### [init] Tum kaynaklar hazir."
