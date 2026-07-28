@@ -121,4 +121,16 @@ put_threshold OIL_LIFE_LOW       oilLife        LT 15  UYARI  "Yag omru dusuk, b
 put_threshold BATTERY_LOW        batteryVoltage LT 12  UYARI  "Aku voltaji dusuk"
 put_threshold TIRE_PRESSURE_LOW  tirePressure   LT 30  BILGI  "Lastik basinci dusuk"
 
+
+echo "### [init] ===== Guncel durum (out-of-order korumasi) ====="
+
+# Arac basina TEK satir: aracin en guncel durumu.
+# Ingestion buraya kosullu yazar (yeni timestamp > kayitli ise), boylece
+# gec gelen eski bir olcum guncel durumu EZEMEZ.
+awslocal dynamodb create-table \
+  --table-name vehicle_state \
+  --attribute-definitions AttributeName=vehicleId,AttributeType=S \
+  --key-schema AttributeName=vehicleId,KeyType=HASH \
+  --billing-mode PAY_PER_REQUEST
+
 echo "### [init] Tum kaynaklar hazir."
