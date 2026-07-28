@@ -33,6 +33,9 @@ public class AwsConfig {
     @Value("${app.dynamodb.alerts-table-name}")
     private String alertsTableName;
 
+    @Value("${app.dynamodb.thresholds-table-name}")
+    private String thresholdsTableName;
+
     private StaticCredentialsProvider credentials() {
         return StaticCredentialsProvider.create(AwsBasicCredentials.create(accessKey, secretKey));
     }
@@ -65,5 +68,10 @@ public class AwsConfig {
     @Bean
     public DynamoDbTable<Alert> alertsTable(DynamoDbEnhancedClient enhancedClient) {
         return enhancedClient.table(alertsTableName, TableSchema.fromBean(Alert.class));
+    }
+
+    @Bean
+    public DynamoDbTable<Threshold> thresholdsTable(DynamoDbEnhancedClient enhancedClient) {
+        return enhancedClient.table(thresholdsTableName, TableSchema.fromBean(Threshold.class));
     }
 }
