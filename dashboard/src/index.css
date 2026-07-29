@@ -1,0 +1,9 @@
+:root { color-scheme: dark; }
+* { box-sizing: border-box; }
+html, body, #root { margin: 0; height: 100%; }
+body {
+  font-family: "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
+  background: radial-gradient(1200px 600px at 20% -10%, #16203f 0%, #0b1020 55%);
+  color: #e6e9f2;
+  -webkit-font-smoothing: antialiased;
+}
