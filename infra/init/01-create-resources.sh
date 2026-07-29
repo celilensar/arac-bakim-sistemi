@@ -98,6 +98,17 @@ awslocal sns subscribe \
 #   awslocal sns subscribe --topic-arn "$NOTIFY_TOPIC_ARN" --protocol email --notification-endpoint ornek@mail.com
 # LocalStack (ucretsiz) gercek e-posta gondermez; o yuzden inbox kuyrugu ile dogruluyoruz.
 
+# 4) Dashboard kuyrugu: canli akis icin dashboard backend'i bu kuyrugu tuketip
+#    tarayiciya SSE ile iter. Yine alert-notifications topic'ine abone (fan-out).
+awslocal sqs create-queue --queue-name dashboard-queue
+DASHBOARD_ARN=$(queue_arn dashboard-queue)
+echo "### [init] dashboard-queue -> alert-notifications aboneligi"
+awslocal sns subscribe \
+  --topic-arn "$NOTIFY_TOPIC_ARN" \
+  --protocol sqs \
+  --notification-endpoint "$DASHBOARD_ARN" \
+  --attributes RawMessageDelivery=true
+
 
 echo "### [init] ===== Dinamik esikler (thresholds) ====="
 
