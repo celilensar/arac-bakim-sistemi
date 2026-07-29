@@ -56,6 +56,12 @@
 			<artifactId>dynamodb-enhanced</artifactId>
 		</dependency>
 
+		<!-- SQS: dashboard-queue'yu tuketip tarayiciya SSE ile itmek icin -->
+		<dependency>
+			<groupId>software.amazon.awssdk</groupId>
+			<artifactId>sqs</artifactId>
+		</dependency>
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-webmvc-test</artifactId>

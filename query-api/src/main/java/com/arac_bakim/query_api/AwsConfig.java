@@ -13,10 +13,11 @@ import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
+import software.amazon.awssdk.services.sqs.SqsClient;
 
 /**
- * DynamoDB istemcilerini bean olarak uretir (LocalStack'e yonlendirilmis).
- * Bu servis sadece OKUMA yaptigi icin SQS istemcisi yok.
+ * AWS istemcilerini bean olarak uretir (LocalStack'e yonlendirilmis).
+ * DynamoDB okuma + dashboard-queue tuketimi (SQS) icin.
  */
 @Configuration
 public class AwsConfig {
@@ -36,13 +37,28 @@ public class AwsConfig {
     @Value("${app.dynamodb.table-name}")
     private String tableName;
 
+    @Value("${app.dynamodb.state-table-name}")
+    private String stateTableName;
+
+    private StaticCredentialsProvider credentials() {
+        return StaticCredentialsProvider.create(AwsBasicCredentials.create(accessKey, secretKey));
+    }
+
     @Bean
     public DynamoDbClient dynamoDbClient() {
         return DynamoDbClient.builder()
                 .region(Region.of(region))
                 .endpointOverride(URI.create(endpoint))
-                .credentialsProvider(StaticCredentialsProvider.create(
-                        AwsBasicCredentials.create(accessKey, secretKey)))
+                .credentialsProvider(credentials())
+                .build();
+    }
+
+    @Bean
+    public SqsClient sqsClient() {
+        return SqsClient.builder()
+                .region(Region.of(region))
+                .endpointOverride(URI.create(endpoint))
+                .credentialsProvider(credentials())
                 .build();
     }
 
@@ -56,5 +72,10 @@ public class AwsConfig {
     @Bean
     public DynamoDbTable<TelemetryItem> telemetryTable(DynamoDbEnhancedClient enhancedClient) {
         return enhancedClient.table(tableName, TableSchema.fromBean(TelemetryItem.class));
+    }
+
+    @Bean
+    public DynamoDbTable<VehicleState> vehicleStateTable(DynamoDbEnhancedClient enhancedClient) {
+        return enhancedClient.table(stateTableName, TableSchema.fromBean(VehicleState.class));
     }
 }
