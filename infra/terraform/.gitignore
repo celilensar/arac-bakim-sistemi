@@ -1,0 +1,18 @@
+# Terraform - bunlar git'e GIRMEZ
+# (Not: .gitignore satir-sonu yorum desteklemez; yorumlar ayri satirda olmali.)
+
+# Indirilen provider'lar (buyuk, init ile yeniden gelir)
+.terraform/
+
+# State defteri (hassas veri icerebilir) + yedekleri
+*.tfstate
+*.tfstate.*
+
+# Cokme loglari
+crash.log
+
+# Degisken degerleri (sir icerebilir)
+*.tfvars
+*.tfvars.json
+
+# Provider surum kilidi (.terraform.lock.hcl) COMMIT'lenir - bu yuzden burada YOK.
