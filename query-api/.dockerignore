@@ -1,0 +1,9 @@
+# Build context'e (Docker'a gonderilen dosyalara) girmesin diye:
+# hem daha hizli build hem gereksiz/dahili dosyalar image'a sizmaz.
+target/
+.idea/
+*.iml
+.git/
+.gitignore
+HELP.md
+.vscode/

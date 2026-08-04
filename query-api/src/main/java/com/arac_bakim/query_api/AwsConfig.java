@@ -7,6 +7,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
+import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
@@ -25,13 +27,15 @@ public class AwsConfig {
     @Value("${aws.region}")
     private String region;
 
-    @Value("${aws.endpoint}")
+    // Bos birakilirsa (gercek AWS) endpointOverride yapilmaz.
+    @Value("${aws.endpoint:}")
     private String endpoint;
 
-    @Value("${aws.access-key}")
+    // Bos birakilirsa (gercek AWS) DefaultCredentialsProvider kullanilir (IAM rol).
+    @Value("${aws.access-key:}")
     private String accessKey;
 
-    @Value("${aws.secret-key}")
+    @Value("${aws.secret-key:}")
     private String secretKey;
 
     @Value("${app.dynamodb.table-name}")
@@ -40,26 +44,40 @@ public class AwsConfig {
     @Value("${app.dynamodb.state-table-name}")
     private String stateTableName;
 
-    private StaticCredentialsProvider credentials() {
+    // access-key doluysa sabit anahtar (LocalStack), bos ise ortamin varsayilan
+    // kimlik zinciri (App Runner IAM rolu, ~/.aws, env degiskenleri...).
+    private AwsCredentialsProvider credentials() {
+        if (accessKey == null || accessKey.isBlank()) {
+            return DefaultCredentialsProvider.create();
+        }
         return StaticCredentialsProvider.create(AwsBasicCredentials.create(accessKey, secretKey));
+    }
+
+    // endpoint doluysa LocalStack'e yonlendir; bos ise gercek AWS adresini kullan.
+    private boolean hasEndpoint() {
+        return endpoint != null && !endpoint.isBlank();
     }
 
     @Bean
     public DynamoDbClient dynamoDbClient() {
-        return DynamoDbClient.builder()
+        var b = DynamoDbClient.builder()
                 .region(Region.of(region))
-                .endpointOverride(URI.create(endpoint))
-                .credentialsProvider(credentials())
-                .build();
+                .credentialsProvider(credentials());
+        if (hasEndpoint()) {
+            b.endpointOverride(URI.create(endpoint));
+        }
+        return b.build();
     }
 
     @Bean
     public SqsClient sqsClient() {
-        return SqsClient.builder()
+        var b = SqsClient.builder()
                 .region(Region.of(region))
-                .endpointOverride(URI.create(endpoint))
-                .credentialsProvider(credentials())
-                .build();
+                .credentialsProvider(credentials());
+        if (hasEndpoint()) {
+            b.endpointOverride(URI.create(endpoint));
+        }
+        return b.build();
     }
 
     @Bean

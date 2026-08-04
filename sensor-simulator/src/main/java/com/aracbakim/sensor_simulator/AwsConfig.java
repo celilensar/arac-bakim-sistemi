@@ -7,6 +7,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
+import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.sqs.SqsClient;
@@ -23,22 +25,32 @@ public class AwsConfig {
     @Value("${aws.region}")
     private String region;
 
-    @Value("${aws.endpoint}")
+    // Bos birakilirsa (gercek AWS) endpointOverride yapilmaz.
+    @Value("${aws.endpoint:}")
     private String endpoint;
 
-    @Value("${aws.access-key}")
+    // Bos birakilirsa (gercek AWS) DefaultCredentialsProvider kullanilir (~/.aws, IAM rol...).
+    @Value("${aws.access-key:}")
     private String accessKey;
 
-    @Value("${aws.secret-key}")
+    @Value("${aws.secret-key:}")
     private String secretKey;
+
+    private AwsCredentialsProvider credentials() {
+        if (accessKey == null || accessKey.isBlank()) {
+            return DefaultCredentialsProvider.create();
+        }
+        return StaticCredentialsProvider.create(AwsBasicCredentials.create(accessKey, secretKey));
+    }
 
     @Bean
     public SqsClient sqsClient() {
-        return SqsClient.builder()
+        var b = SqsClient.builder()
                 .region(Region.of(region))
-                .endpointOverride(URI.create(endpoint)) // <-- LocalStack'e yonlendirme
-                .credentialsProvider(StaticCredentialsProvider.create(
-                        AwsBasicCredentials.create(accessKey, secretKey)))
-                .build();
+                .credentialsProvider(credentials());
+        if (endpoint != null && !endpoint.isBlank()) {
+            b.endpointOverride(URI.create(endpoint)); // dolu ise LocalStack'e yonlendir
+        }
+        return b.build();
     }
 }
