@@ -11,7 +11,7 @@ variable "region" {
 }
 
 variable "image_uri" {
-  description = "query-api ECR image adresi"
+  description = "query-api ECR image adresi. Kendi hesabina gore terraform.tfvars ile ver: <ACCOUNT_ID>.dkr.ecr.<REGION>.amazonaws.com/query-api:latest"
   type        = string
-  default     = "508564776181.dkr.ecr.eu-central-1.amazonaws.com/query-api:latest"
+  default     = "YOUR_ACCOUNT_ID.dkr.ecr.eu-central-1.amazonaws.com/query-api:latest"
 }
