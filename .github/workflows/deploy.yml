@@ -50,3 +50,17 @@ jobs:
           docker build -t $REGISTRY/$ECR_REPO:latest -t $REGISTRY/$ECR_REPO:${{ github.sha }} ./query-api
           docker push $REGISTRY/$ECR_REPO:latest
           docker push $REGISTRY/$ECR_REPO:${{ github.sha }}
+
+      # 5) Deploy: ECS servisi ayaktaysa yeni image ile guncelle.
+      #    Servis durdurulmus (desired=0) veya yoksa pipeline'i kirmadan atla.
+      - name: Deploy to ECS (if running)
+        run: |
+          STATUS=$(aws ecs describe-services --cluster default --services query-api \
+            --region $AWS_REGION --query 'services[0].status' --output text 2>/dev/null || echo "NONE")
+          if [ "$STATUS" = "ACTIVE" ]; then
+            aws ecs update-service --cluster default --service query-api \
+              --force-new-deployment --region $AWS_REGION
+            echo "ECS servisi yeni image ile guncellendi."
+          else
+            echo "ECS servisi calismiyor (durum: $STATUS). Image ECR'de hazir; deploy atlandi."
+          fi
