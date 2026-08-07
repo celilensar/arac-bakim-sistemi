@@ -1,5 +1,12 @@
 # Vehicle Maintenance Alert System
 
+[![CI/CD](https://github.com/celilensar/arac-bakim-sistemi/actions/workflows/deploy.yml/badge.svg)](https://github.com/celilensar/arac-bakim-sistemi/actions/workflows/deploy.yml)
+![Java](https://img.shields.io/badge/Java-21-007396?logo=openjdk&logoColor=white)
+![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3-6DB33F?logo=springboot&logoColor=white)
+![AWS](https://img.shields.io/badge/AWS-ECS%20Fargate-FF9900?logo=amazonaws&logoColor=white)
+![Terraform](https://img.shields.io/badge/IaC-Terraform-7B42BC?logo=terraform&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-multi--stage-2496ED?logo=docker&logoColor=white)
+
 An **event-driven microservice platform** that processes simulated vehicle sensor data
 (engine temperature, oil life, tire pressure, battery voltage, mileage) to produce
 maintenance alerts in real time — and ships end-to-end to **AWS**, with the whole cloud
