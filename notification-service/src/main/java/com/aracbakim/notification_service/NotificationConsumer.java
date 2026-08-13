@@ -47,20 +47,14 @@ public class NotificationConsumer {
     private String notifyTopicArn;
     private Set<String> allowedSeverities;
 
-    // Cooldown mantigi artik ayri, saf (test edilebilir) bir sinifta.
-    // (Cok instance'li uretimde ayni arayuz Redis ile degistirilebilir -> Faz B.)
-    private CooldownTracker cooldown;
+    // Cooldown deposu enjekte edilir; hangi uygulama (memory/redis) geldigine
+    // CooldownConfig karar verir. Consumer sadece arayuze baglidir.
+    private final CooldownTracker cooldown;
 
-    private CooldownTracker cooldown() {
-        if (cooldown == null) {
-            cooldown = new CooldownTracker(cooldownSeconds); // @Value bu ana kadar dolmus olur
-        }
-        return cooldown;
-    }
-
-    public NotificationConsumer(SqsClient sqsClient, SnsClient snsClient) {
+    public NotificationConsumer(SqsClient sqsClient, SnsClient snsClient, CooldownTracker cooldown) {
         this.sqsClient = sqsClient;
         this.snsClient = snsClient;
+        this.cooldown = cooldown;
     }
 
     @Scheduled(fixedDelayString = "${app.poll.interval-ms}")
@@ -84,7 +78,7 @@ public class NotificationConsumer {
                 log.info("Atlandi (dusuk oncelik: {}) -> {}", alert.getSeverity(), alert.getVehicleId());
             }
             // 2) Cooldown: ayni arac+kural icin son bildirimden bu yana yeterli sure gecti mi?
-            else if (cooldown().isInCooldown(cooldownKey(alert))) {
+            else if (cooldown.isInCooldown(cooldownKey(alert))) {
                 log.info("Atlandi (cooldown, {}sn) -> {} / {}",
                         cooldownSeconds, alert.getVehicleId(), alert.getRule());
             }
@@ -98,7 +92,7 @@ public class NotificationConsumer {
                         .subject(subject)
                         .message(body));
 
-                cooldown().markSent(cooldownKey(alert));
+                cooldown.markSent(cooldownKey(alert));
                 log.info("BILDIRIM GONDERILDI -> {}", body);
             }
 

@@ -16,3 +16,11 @@ services:
       - "./infra/init:/etc/localstack/init/ready.d"
       # LocalStack'in bazı servisleri arka planda yardımcı konteynerler başlatır; bunun için Docker'a erişmesi gerekir.
       - "/var/run/docker.sock:/var/run/docker.sock"
+
+  # Redis: cooldown durumunu instance'lar arasinda PAYLASMAK icin ortak in-memory depo.
+  # TTL (kendini silen anahtar) ile cooldown suresini Redis'in kendisi yonetir.
+  redis:
+    image: redis:7                            # Redis 7
+    container_name: arac-redis
+    ports:
+      - "6379:6379"                           # Redis'in standart portu

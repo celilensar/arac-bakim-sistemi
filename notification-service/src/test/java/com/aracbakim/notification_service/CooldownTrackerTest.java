@@ -33,7 +33,7 @@ class CooldownTrackerTest {
     @Test
     @DisplayName("Ilk gonderim cooldown'da degildir")
     void first_send_is_not_in_cooldown() {
-        CooldownTracker tracker = new CooldownTracker(120, new TestClock());
+        CooldownTracker tracker = new InMemoryCooldownTracker(120, new TestClock());
 
         assertThat(tracker.isInCooldown("VH-001#ENGINE_OVERHEAT")).isFalse();
     }
@@ -41,7 +41,7 @@ class CooldownTrackerTest {
     @Test
     @DisplayName("Gonderimden hemen sonra cooldown'dadir (tekrar engellenir)")
     void immediately_after_send_is_in_cooldown() {
-        CooldownTracker tracker = new CooldownTracker(120, new TestClock());
+        CooldownTracker tracker = new InMemoryCooldownTracker(120, new TestClock());
         String key = "VH-001#ENGINE_OVERHEAT";
 
         tracker.markSent(key);
@@ -53,7 +53,7 @@ class CooldownTrackerTest {
     @DisplayName("Cooldown suresi dolunca tekrar gonderilebilir")
     void after_cooldown_expires_is_allowed_again() {
         TestClock clock = new TestClock();
-        CooldownTracker tracker = new CooldownTracker(120, clock);
+        CooldownTracker tracker = new InMemoryCooldownTracker(120, clock);
         String key = "VH-001#ENGINE_OVERHEAT";
 
         tracker.markSent(key);
@@ -66,7 +66,7 @@ class CooldownTrackerTest {
     @Test
     @DisplayName("Farkli arac/kural birbirini etkilemez")
     void different_keys_are_independent() {
-        CooldownTracker tracker = new CooldownTracker(120, new TestClock());
+        CooldownTracker tracker = new InMemoryCooldownTracker(120, new TestClock());
 
         tracker.markSent("VH-001#ENGINE_OVERHEAT");
 
