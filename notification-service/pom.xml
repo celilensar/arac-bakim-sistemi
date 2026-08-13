@@ -78,6 +78,15 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+
+		<!-- Testcontainers: testte gercek Redis'i Docker'da ayaga kaldirir.
+		     Bu Spring Boot surumu Testcontainers'i yonetmedigi icin versiyonu acik veriyoruz. -->
+		<dependency>
+			<groupId>org.testcontainers</groupId>
+			<artifactId>junit-jupiter</artifactId>
+			<version>1.20.4</version>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 
 	<build>

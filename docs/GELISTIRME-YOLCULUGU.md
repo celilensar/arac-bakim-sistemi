@@ -178,7 +178,11 @@ flowchart LR
 - **CooldownTracker unit testleri:** cooldown mantığı **ayrı saf sınıfa çıkarıldı**
   (testability refactor). Zaman-bağımlı test için **Clock enjeksiyonu** → `Thread.sleep`
   olmadan, `advanceSeconds` ile zaman ileri sarılarak deterministik test.
-- **Öğrenilen:** "test etmesi zorsa, tasarım kokusudur → ayrıştır."
+- **RedisCooldownTracker entegrasyon testi** (**Testcontainers**): testte Docker'da
+  **gerçek Redis** ayağa kaldırılıp doğru yazma/okuma ve TTL davranışı kanıtlanır.
+  Unit (mock, hızlı) + integration (gerçek, yavaş) + smoke (`contextLoads`) → **test piramidi**.
+- **Öğrenilen:** "test etmesi zorsa, tasarım kokusudur → ayrıştır." Ayrıca: unit'te
+  zamanı `Clock` ile kontrol ederiz; integration'da gerçek TTL gerçek zamanda işler (kısa bekleme).
 
 ---
 
@@ -227,11 +231,11 @@ flowchart TD
 ## 14. Sırada ne var
 
 ```
-FAZ A · Testler  ✅ (RuleEngine + CooldownTracker unit)
+FAZ A · Testler  ✅ (unit: RuleEngine + CooldownTracker · integration: Testcontainers/Redis)
 FAZ B · Redis    ✅ (dağıtık cooldown + TTL)
 FAZ C · Observability  ⬜ (Actuator + Prometheus + Grafana)
 FAZ D · Kafka          ⬜ (event-driven alternatif)
-FAZ E · Opsiyonel      ⬜ (Elasticsearch · WebSocket · Spring Batch · Testcontainers)
+FAZ E · Opsiyonel      ⬜ (Elasticsearch · WebSocket · Spring Batch)
 ```
 
 *Kişisel öğrenme & portföy projesi — lokal olay güdümlü hattan, kimlik doğrulamalı ve
