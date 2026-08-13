@@ -1,10 +1,7 @@
 package com.aracbakim.notification_service;
 
-import java.time.Instant;
 import java.util.Arrays;
-import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -50,10 +47,16 @@ public class NotificationConsumer {
     private String notifyTopicArn;
     private Set<String> allowedSeverities;
 
-    // Ayni (arac + kural) icin son bildirimin gonderildigi an.
-    // Bellekte tutuluyor; tek instance icin yeterli. (Cok instance'li uretimde
-    // ortak bir depo -> DynamoDB/Redis TTL ile paylasilmali.)
-    private final Map<String, Instant> lastSentAt = new ConcurrentHashMap<>();
+    // Cooldown mantigi artik ayri, saf (test edilebilir) bir sinifta.
+    // (Cok instance'li uretimde ayni arayuz Redis ile degistirilebilir -> Faz B.)
+    private CooldownTracker cooldown;
+
+    private CooldownTracker cooldown() {
+        if (cooldown == null) {
+            cooldown = new CooldownTracker(cooldownSeconds); // @Value bu ana kadar dolmus olur
+        }
+        return cooldown;
+    }
 
     public NotificationConsumer(SqsClient sqsClient, SnsClient snsClient) {
         this.sqsClient = sqsClient;
@@ -81,7 +84,7 @@ public class NotificationConsumer {
                 log.info("Atlandi (dusuk oncelik: {}) -> {}", alert.getSeverity(), alert.getVehicleId());
             }
             // 2) Cooldown: ayni arac+kural icin son bildirimden bu yana yeterli sure gecti mi?
-            else if (inCooldown(alert)) {
+            else if (cooldown().isInCooldown(cooldownKey(alert))) {
                 log.info("Atlandi (cooldown, {}sn) -> {} / {}",
                         cooldownSeconds, alert.getVehicleId(), alert.getRule());
             }
@@ -95,7 +98,7 @@ public class NotificationConsumer {
                         .subject(subject)
                         .message(body));
 
-                lastSentAt.put(cooldownKey(alert), Instant.now());
+                cooldown().markSent(cooldownKey(alert));
                 log.info("BILDIRIM GONDERILDI -> {}", body);
             }
 
@@ -117,12 +120,6 @@ public class NotificationConsumer {
         };
         return "%s %s - %s (%s = %s)".formatted(
                 icon, a.getVehicleId(), a.getMessage(), a.getRule(), a.getValue());
-    }
-
-    // Ayni arac + kural icin son bildirimden bu yana cooldown suresi dolmadiysa true.
-    private boolean inCooldown(Alert alert) {
-        Instant last = lastSentAt.get(cooldownKey(alert));
-        return last != null && last.plusSeconds(cooldownSeconds).isAfter(Instant.now());
     }
 
     private String cooldownKey(Alert alert) {

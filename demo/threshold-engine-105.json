@@ -1,0 +1,9 @@
+{
+  "ruleCode": {"S": "ENGINE_OVERHEAT"},
+  "metric": {"S": "engineTemp"},
+  "operator": {"S": "GT"},
+  "limitValue": {"N": "105"},
+  "severity": {"S": "KRITIK"},
+  "message": {"S": "Motor sicakligi cok yuksek"},
+  "enabled": {"BOOL": true}
+}
