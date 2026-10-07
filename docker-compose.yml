@@ -24,3 +24,22 @@ services:
     container_name: arac-redis
     ports:
       - "6379:6379"                           # Redis'in standart portu
+
+  # Prometheus: query-api'nin /actuator/prometheus ucundan metrikleri periyodik CEKER + saklar.
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: arac-prometheus
+    ports:
+      - "9090:9090"                           # Prometheus arayuzu: http://localhost:9090
+    volumes:
+      - "./infra/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml"
+
+  # Grafana: Prometheus verisini gorsel panolara doker.
+  grafana:
+    image: grafana/grafana:latest
+    container_name: arac-grafana
+    ports:
+      - "3000:3000"                           # Grafana arayuzu: http://localhost:3000
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin      # demo icin basit sifre

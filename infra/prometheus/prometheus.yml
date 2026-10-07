@@ -1,0 +1,10 @@
+# Prometheus yapilandirmasi: hangi hedeften, ne siklikla metrik cekilecek.
+global:
+  scrape_interval: 5s          # her 5 saniyede bir metrikleri "scrape" et (cek)
+
+scrape_configs:
+  - job_name: query-api
+    metrics_path: /actuator/prometheus   # metriklerin yayinlandigi uc
+    static_configs:
+      # query-api HOST'ta (lokalde) calisiyor; konteynerden host'a bu adresle ulasilir.
+      - targets: ["host.docker.internal:8080"]
