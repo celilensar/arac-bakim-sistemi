@@ -18,3 +18,15 @@ Thumbs.db
 
 # Loglar
 *.log
+
+# --- Kisisel / yayina girmeyecek dosyalar ---
+
+# Staj video transkriptleri (hocaya ozel, repoya ait degil)
+docs/hafta-*-video.md
+
+# Tanitim videosu calisma klasoru: yuz cekimleri, render ciktilari,
+# cekim notlari. Hem kisisel hem buyuk (72 MB) - git'e ait degil.
+video/
+
+# Medium yazisi taslagi ve gorselleri (henuz yayinlanmadi)
+docs/medium/
